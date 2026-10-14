@@ -1,4 +1,3 @@
-import subprocess
 import sqlite3
 
 conn = sqlite3.connect(":memory:")
@@ -6,7 +5,7 @@ conn.execute("CREATE TABLE riders (id INTEGER PRIMARY KEY, student TEXT, route T
 
 
 def enrollRider(student,route,stop,fee):
-    conn.execute(f"INSERT INTO riders (student, route, stop, fee) VALUES ('{student}', '{route}', '{stop}', {fee})")
+    conn.execute("INSERT INTO riders (student, route, stop, fee) VALUES (?, ?, ?, ?)", (student, route, stop, fee))
     conn.commit()
 
 
@@ -21,7 +20,7 @@ def exportRoster(path, route):
     out.close()
 
 def dispatchAlert(route):
-    subprocess.run("echo dispatching bus " + route, shell=True, check=False)
+    print("dispatching bus " + route)
 
 
 def feeCollected(route):
@@ -35,7 +34,8 @@ def main():
     enrollRider("Tara", "R1", "Lake Road", 1800)
     enrollRider("Kabir", "R1", "Mill Street", 1800)
     enrollRider("Zoya", "R2", "Fort Gate", 2100)
-    assert feeCollected("R1") == 3600
+    if feeCollected("R1") != 3600:
+        raise ValueError("Fee mismatch for route R1")
     exportRoster("route_r1.txt", "R1")
     dispatchAlert("R1")
     print(routeRoster("R2", "Mr. Das"))
