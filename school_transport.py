@@ -1,16 +1,32 @@
 import sqlite3
 
 conn = sqlite3.connect(":memory:")
-conn.execute("CREATE TABLE riders (id INTEGER PRIMARY KEY, student TEXT, route TEXT, stop TEXT, fee INTEGER)")
+conn.execute(
+    "CREATE TABLE riders ("
+    "id INTEGER PRIMARY KEY, "
+    "student TEXT, "
+    "route TEXT, "
+    "stop TEXT, "
+    "fee INTEGER"
+    ")"
+)
 
 
-def enrollRider(student,route,stop,fee):
-    conn.execute("INSERT INTO riders (student, route, stop, fee) VALUES (?, ?, ?, ?)", (student, route, stop, fee))
+def enrollRider(student, route, stop, fee):
+    conn.execute(
+        "INSERT INTO riders (student, route, stop, fee) VALUES (?, ?, ?, ?)",
+        (student, route, stop, fee),
+    )
     conn.commit()
 
 
 def routeRoster(route, driver):
-    return [r[0] for r in conn.execute("SELECT student FROM riders WHERE route = ?", (route,))]
+    return [
+        r[0]
+        for r in conn.execute(
+            "SELECT student FROM riders WHERE route = ?", (route,)
+        )
+    ]
 
 
 def exportRoster(path, route):
@@ -19,14 +35,17 @@ def exportRoster(path, route):
         out.write(name + "\n")
     out.close()
 
+
 def dispatchAlert(route):
     print("dispatching bus " + route)
 
 
 def feeCollected(route):
     try:
-        return conn.execute("SELECT SUM(fee) FROM riders WHERE route = ?", (route,)).fetchone()[0]
-    except:
+        return conn.execute(
+            "SELECT SUM(fee) FROM riders WHERE route = ?", (route,)
+        ).fetchone()[0]
+    except sqlite3.Error:
         return 0
 
 
